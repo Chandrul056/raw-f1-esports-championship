@@ -159,11 +159,29 @@ function sortByTotalDesc(rows, totalKey = "Total") {
 
 // ---------- Navigation ----------
 function showView(viewName) {
+    document.body.classList.toggle("hide-hero", viewName !== "home");
+
     $$(".nav__btn").forEach(b => b.classList.toggle("is-active", b.dataset.view === viewName));
     $$(".view").forEach(v => v.classList.remove("is-active"));
-    const target = $(`#view-${viewName}`);
+
+    const target = document.querySelector(`#view-${viewName}`);
     if (target) target.classList.add("is-active");
+
+    // Scroll behavior
+    const topbar = document.querySelector(".topbar");
+    const offset = (topbar?.offsetHeight || 72) + 12; // header + small gap
+
+    if (viewName !== "home") {
+        const anchor = document.getElementById("mainContent") || target;
+        anchor?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        // Apply offset so content isn't hidden behind sticky header
+        setTimeout(() => window.scrollBy({ top: -offset, left: 0, behavior: "instant" }), 250);
+    } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 }
+
 
 // ---------- App state ----------
 let drivers = [];

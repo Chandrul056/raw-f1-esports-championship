@@ -265,13 +265,13 @@ a{color:inherit}
   white-space:nowrap;
 }
 .table th{
-  position:sticky;
-  top:0;
-  background: rgba(14,16,22,.92);
+  position: sticky;
+  top: 0; 
+  background: rgba(14,16,22,.96);
   backdrop-filter: blur(10px);
-  font-weight:1000;
-  letter-spacing:.2px;
+  z-index: 5;
 }
+
 .table tr:hover td{background: rgba(255,255,255,.03);}
 
 /* Chips */
@@ -404,3 +404,11 @@ a{color:inherit}
   object-fit: contain;
 }
 
+body.hide-hero .hero { display: none; }
+
+.views{
+  scroll-margin-top: 90px;
+}
+.view{
+  scroll-margin-top: 90px;
+}
