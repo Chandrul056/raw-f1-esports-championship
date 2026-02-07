@@ -26,6 +26,7 @@ const CONFIG = {
     races: [
         { name: "R1 – Australia", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=798839272&single=true&output=csv" },
         { name: "R2 – China", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1510901277&single=true&output=csv" },
+        { name: "R3 – Japan", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1358920533&single=true&output=csv" },
     ],
 
     // Home page "Next Race" card
@@ -381,3 +382,4 @@ $("#raceFilter")?.addEventListener("input", () => {
         setText("lastUpdated", "Failed to load data (check CSV links in script.js).");
     }
 })();
+
