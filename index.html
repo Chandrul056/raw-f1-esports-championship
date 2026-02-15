@@ -38,30 +38,36 @@
 
     <main class="container">
         <!-- HERO -->
-        <section class="hero">
-            <div class="hero__left">
-                <div class="pill">SEASON 1 • 2026</div>
-                <h1 class="hero__title">Championship Central</h1>
-                <p class="hero__desc">
-                    A single place to track standings, results, and championship progress.
-                </p>
+        <section class="hero hero--3">
+            <!-- Card 1: Championship Central -->
+            <div class="card card--glow">
+                <div class="card__header">
+                    <div class="card__title">Championship Central</div>
+                    <div class="card__hint">Season 1 • 2026</div>
+                </div>
 
-                <div class="hero__stats">
-                    <div class="stat">
-                        <div class="stat__label">Last Updated</div>
-                        <div class="stat__value" id="lastUpdated">—</div>
+                <div class="muted">
+                    A single place to track standings, results, and championship progress.
+                </div>
+
+                <div class="heroMeta">
+                    <div class="metaPill">
+                        <span class="metaPill__label">Drivers</span>
+                        <span class="metaPill__value" id="driverCount">—</span>
                     </div>
-                    <div class="stat">
-                        <div class="stat__label">Drivers</div>
-                        <div class="stat__value" id="driverCount">—</div>
+
+                    <div class="metaPill">
+                        <span class="metaPill__label">Constructors</span>
+                        <span class="metaPill__value" id="constructorCount">—</span>
                     </div>
-                    <div class="stat">
-                        <div class="stat__label">Constructors</div>
-                        <div class="stat__value" id="constructorCount">—</div>
+
+                    <div class="metaPill metaPill--muted">
+                        <span class="metaPill__label">Updated</span>
+                        <span class="metaPill__value" id="lastUpdated">—</span>
                     </div>
                 </div>
 
-                <div class="hero__actions">
+                <div class="hero__actions" style="padding:0 16px 16px;">
                     <button class="btn btn--primary" id="refreshBtn" type="button">Refresh Data</button>
                     <a class="btn btn--ghost" href="#" id="sheetLink" target="_blank" rel="noreferrer">
                         Open Master Sheet
@@ -69,18 +75,29 @@
                 </div>
             </div>
 
-            <div class="hero__right">
-                <div class="card card--glow">
-                    <div class="card__header">
-                        <div class="card__title">Top 3 Drivers</div>
-                        <div class="card__hint">Live from standings</div>
-                    </div>
-                    <div class="podium" id="podium">
-                        <div class="podium__empty">Waiting for data…</div>
-                    </div>
+            <!-- Card 2: Top 3 Drivers -->
+            <div class="card">
+                <div class="card__header">
+                    <div class="card__title">Top 3 Drivers</div>
+                    <div class="card__hint">Live from standings</div>
+                </div>
+                <div class="podium" id="podium">
+                    <div class="podium__empty">Waiting for data…</div>
+                </div>
+            </div>
+
+            <!-- Card 3: Top 3 Constructors -->
+            <div class="card">
+                <div class="card__header">
+                    <div class="card__title">Top 3 Constructors</div>
+                    <div class="card__hint">Live from standings</div>
+                </div>
+                <div class="podium" id="constructorsPodium">
+                    <div class="podium__empty">Waiting for data…</div>
                 </div>
             </div>
         </section>
+
 
         <!-- VIEWS -->
         <section class="views" id="mainContent">
