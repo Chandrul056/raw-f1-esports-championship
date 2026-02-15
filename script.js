@@ -22,6 +22,9 @@ const CONFIG = {
     // Constructors Standings sheet CSV
     constructorsCsv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=416343744&single=true&output=csv",
 
+    // Calendar 2026 Season 1 sheet CSV
+    calendarCsv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=475020064&single=true&output=csv",
+
     // Race sheet CSV list (one tab per race)
     races: [
         { name: "R1 – Australia", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=798839272&single=true&output=csv" },
@@ -188,6 +191,7 @@ function showView(viewName) {
 // ---------- App state ----------
 let drivers = [];
 let constructors = [];
+let calendarRows = [];
 let raceCache = new Map(); // raceName -> rows
 
 function renderPodium(top3) {
@@ -210,6 +214,44 @@ function renderPodium(top3) {
     </div>
   `).join("");
 }
+
+function renderCalendar(rows) {
+    const tableEl = $("#calendarTable");
+    if (!tableEl) return;
+
+    // Try to support flexible column names
+    const cols = [
+        { key: "__round", label: "Round" },
+        { key: "__gp", label: "Grand Prix" },
+        { key: "__track", label: "Track" },
+        { key: "__status", label: "Status" }
+    ];
+
+    const normalized = (rows || []).map(r => {
+        const round =
+            r["Round"] || r["R"] || r["Rnd"] || r["No"] || r["#"] || "";
+
+        const gp =
+            r["Grand Prix"] || r["Country"] || r["GP"] || r["Location"] || "";
+
+        const track =
+            r["Track"] || r["Circuit"] || r["Venue"] || "";
+
+        const status =
+            r["Status"] || r["State"] || r["Planned"] || "";
+
+        return {
+            ...r,
+            __round: round,
+            __gp: gp,
+            __track: track,
+            __status: status
+        };
+    });
+
+    renderTable(tableEl, cols, normalized);
+}
+
 
 function populateRaceSelect() {
     const sel = $("#raceSelect");
@@ -302,7 +344,6 @@ async function loadRace(raceName) {
     }
 
     renderRaceTable(rows);
-    setText("latestRaceSummary", `Currently viewing: ${raceName}`);
     const foot = $("#raceFootnote");
     if (foot) foot.textContent = "Tip: Use Quick Filter to find a driver/team instantly.";
 }
@@ -316,6 +357,9 @@ async function loadAll() {
 
     drivers = await fetchCsvObjects(CONFIG.driversCsv);
     constructors = await fetchCsvObjects(CONFIG.constructorsCsv);
+
+    calendarRows = await fetchCsvObjects(CONFIG.calendarCsv);
+    renderCalendar(calendarRows);
 
     const driversSorted = sortByTotalDesc(drivers, "Total");
     const constructorsSorted = sortByTotalDesc(constructors, "Total");
@@ -383,5 +427,3 @@ $("#raceFilter")?.addEventListener("input", () => {
         setText("lastUpdated", "Failed to load data (check CSV links in script.js).");
     }
 })();
-
-
