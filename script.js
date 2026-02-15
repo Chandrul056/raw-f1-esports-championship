@@ -215,6 +215,29 @@ function renderPodium(top3) {
   `).join("");
 }
 
+function renderConstructorsPodium(top3, totalKey = "Total") {
+    const el = document.getElementById("constructorsPodium");
+    if (!el) return;
+
+    if (!top3 || top3.length === 0) {
+        el.innerHTML = `<div class="podium__empty">No constructor data yet.</div>`;
+        return;
+    }
+
+    el.innerHTML = top3.map(r => `
+    <div class="podiumRow">
+      <div class="podiumLeft">
+        <div class="podiumRank">${escapeHtml(String(r.__pos))}</div>
+        <div>
+          <div class="podiumName">${escapeHtml(r["Team"] || "")}</div>
+          <div class="podiumMeta">Constructor</div>
+        </div>
+      </div>
+      <div class="podiumPts">${escapeHtml(String(r[totalKey] || 0))} pts</div>
+    </div>
+  `).join("");
+}
+
 function renderCalendar(rows) {
     const tableEl = $("#calendarTable");
     if (!tableEl) return;
@@ -351,18 +374,19 @@ async function loadRace(raceName) {
 async function loadAll() {
     setText("lastUpdated", "Loading…");
     setHref("sheetLink", CONFIG.masterSheetUrl || "#");
-    setText("nextRaceName", CONFIG.nextRace.name);
-    setText("nextRaceTime", CONFIG.nextRace.time);
-    setText("nextRaceNote", CONFIG.nextRace.note);
 
     drivers = await fetchCsvObjects(CONFIG.driversCsv);
     constructors = await fetchCsvObjects(CONFIG.constructorsCsv);
-
     calendarRows = await fetchCsvObjects(CONFIG.calendarCsv);
+
     renderCalendar(calendarRows);
 
-    const driversSorted = sortByTotalDesc(drivers, "Total");
-    const constructorsSorted = sortByTotalDesc(constructors, "Total");
+    // Detect Total column safely
+    const dTotalKey = drivers[0] && ("Total" in drivers[0] ? "Total" : ("Points" in drivers[0] ? "Points" : "Total"));
+    const cTotalKey = constructors[0] && ("Total" in constructors[0] ? "Total" : ("Points" in constructors[0] ? "Points" : "Total"));
+
+    const driversSorted = sortByTotalDesc(drivers, dTotalKey);
+    const constructorsSorted = sortByTotalDesc(constructors, cTotalKey);
 
     const dPos = driversSorted.map((r, i) => ({ ...r, __pos: i + 1 }));
     const cPos = constructorsSorted.map((r, i) => ({ ...r, __pos: i + 1 }));
@@ -375,24 +399,24 @@ async function loadAll() {
         { key: "__pos", label: "Pos" },
         { key: "Driver Name", label: "Driver" },
         { key: "Team (registered)", label: "Team" },
-        { key: "Total", label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
+        { key: dTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
     ];
 
     const ctorCols = [
         { key: "__pos", label: "Pos" },
         { key: "Team", label: "Constructor" },
-        { key: "Total", label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
+        { key: cTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
     ];
 
     renderTable($("#driversTable"), driverCols, dPos);
-    renderTable($("#driversTableHome"), driverCols, dPos.slice(0, 8));
-
     renderTable($("#constructorsTable"), ctorCols, cPos);
-    renderTable($("#constructorsTableHome"), ctorCols, cPos);
 
     renderPodium(dPos.slice(0, 3));
+    renderConstructorsPodium(cPos.slice(0, 3), cTotalKey);
+
     populateRaceSelect();
 }
+
 
 // ---------- Events ----------
 document.addEventListener("click", (e) => {
