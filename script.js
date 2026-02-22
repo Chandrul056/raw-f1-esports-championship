@@ -307,6 +307,8 @@ function pickTeamFromRaceRow(r) {
         r["Team (Race 1)"] ||
         r["Team (Race 2)"] ||
         r["Team (Race 3)"] ||
+        r["Team (Race 4)"] ||
+        r["Team (Race 5)"] ||
         r["Team (Race)"] ||
         r["Team"] ||
         ""
@@ -452,4 +454,5 @@ $("#raceFilter")?.addEventListener("input", () => {
         setText("lastUpdated", "Failed to load data (check CSV links in script.js).");
     }
 })();
+
 
