@@ -32,6 +32,7 @@ const CONFIG = {
         { name: "R3 – Japan", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1358920533&single=true&output=csv" },
         { name: "R4 - Saudi Arabia", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1615900483&single=true&output=csv" },
         { name: "R5 - Great Britain", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1400816626&single=true&output=csv" },
+        { name: "R6 - Belgium", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1590722308&single=true&output=csv" },
     ],
 
     // Home page "Next Race" card
@@ -309,6 +310,7 @@ function pickTeamFromRaceRow(r) {
         r["Team (Race 3)"] ||
         r["Team (Race 4)"] ||
         r["Team (Race 5)"] ||
+        r["Team (Race 6)"] ||
         r["Team (Race)"] ||
         r["Team"] ||
         ""
@@ -454,5 +456,6 @@ $("#raceFilter")?.addEventListener("input", () => {
         setText("lastUpdated", "Failed to load data (check CSV links in script.js).");
     }
 })();
+
 
 
