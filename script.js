@@ -33,7 +33,7 @@ const CONFIG = {
         { name: "R4 - Saudi Arabia", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1615900483&single=true&output=csv" },
         { name: "R5 - Great Britain", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1400816626&single=true&output=csv" },
         { name: "R6 - Belgium", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1590722308&single=true&output=csv" },
-        { name: "R7 - Dutch", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=2138646510&single=true&output=csv" },
+        { name: "R7 - Netherlands", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=2138646510&single=true&output=csv" },
     ],
 
     // Home page "Next Race" card
