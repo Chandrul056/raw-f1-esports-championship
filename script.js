@@ -496,8 +496,8 @@ async function loadAll() {
         { key: "Driver Name", label: "Driver" },
         { key: "Team (registered)", label: "Team" },
         { key: dTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
-        { key: "Wins", label: "Wins" },
-        { key: "Podiums", label: "Podiums" }
+        { key: "Wins", label: "Wins", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
+        { key: "Podiums", label: "Podiums", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
         
     ];
 
@@ -505,8 +505,8 @@ async function loadAll() {
         { key: "__pos", label: "Pos" },
         { key: "Team", label: "Constructor" },
         { key: cTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
-        { key: "Wins", label: "Wins" },
-        { key: "Podiums", label: "Podiums" }
+        { key: "Wins", label: "Wins", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
+        { key: "Podiums", label: "Podiums", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
     ];
 
     renderTable($("#driversTable"), driverCols, dPos);
