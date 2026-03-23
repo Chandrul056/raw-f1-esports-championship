@@ -306,15 +306,9 @@ function populateRaceSelect() {
 }
 
 function pickTeamFromRaceRow(r) {
+    const raceTeamKey = Object.keys(r).find(k => /^Team \(Race \d+\)$/.test(k));
     return (
-        r["Team (Race 1)"] ||
-        r["Team (Race 2)"] ||
-        r["Team (Race 3)"] ||
-        r["Team (Race 4)"] ||
-        r["Team (Race 5)"] ||
-        r["Team (Race 6)"] ||
-        r["Team (Race 7)"] ||
-        r["Team (Race 8)"] ||
+        (raceTeamKey ? r[raceTeamKey] : "") ||
         r["Team (Race)"] ||
         r["Team"] ||
         ""
@@ -329,6 +323,64 @@ function pickPointsFromRaceRow(r) {
         r["Points"] ||
         "0"
     );
+}
+
+function toInt(value) {
+    const n = parseInt(String(value ?? "").replace(/[^\d-]/g, ""), 10);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function getRacePosition(row) {
+    return toInt(row["Pos"]);
+}
+
+function buildDriverStats(raceSheets) {
+    const stats = {};
+
+    raceSheets.forEach(rows => {
+        rows.forEach(r => {
+            const driver = (r["Driver Name"] || "").trim();
+            const status = (r["Finish Status"] || "").trim().toLowerCase();
+            const pos = getRacePosition(r);
+
+            if (!driver) return;
+            if (!stats[driver]) {
+                stats[driver] = { wins: 0, podiums: 0 };
+            }
+
+            // Count only classified finished podiums/wins
+            if (status === "finished") {
+                if (pos === 1) stats[driver].wins += 1;
+                if (pos >= 1 && pos <= 3) stats[driver].podiums += 1;
+            }
+        });
+    });
+
+    return stats;
+}
+
+function buildConstructorStats(raceSheets) {
+    const stats = {};
+
+    raceSheets.forEach(rows => {
+        rows.forEach(r => {
+            const team = pickTeamFromRaceRow(r).trim();
+            const status = (r["Finish Status"] || "").trim().toLowerCase();
+            const pos = getRacePosition(r);
+
+            if (!team) return;
+            if (!stats[team]) {
+                stats[team] = { wins: 0, podiums: 0 };
+            }
+
+            if (status === "finished") {
+                if (pos === 1) stats[team].wins += 1;
+                if (pos >= 1 && pos <= 3) stats[team].podiums += 1;
+            }
+        });
+    });
+
+    return stats;
 }
 
 function renderRaceTable(rows) {
@@ -390,12 +442,47 @@ async function loadAll() {
 
     renderCalendar(calendarRows);
 
+    // Load all race sheets so we can calculate wins/podiums
+    const raceSheets = [];
+    for (const race of CONFIG.races) {
+        try {
+            const rows = await fetchCsvObjects(race.csv);
+            raceCache.set(race.name, rows);
+            raceSheets.push(rows);
+        } catch (err) {
+            console.error(`Failed to load race sheet: ${race.name}`, err);
+        }
+    }
+
+    const driverStats = buildDriverStats(raceSheets);
+    const constructorStats = buildConstructorStats(raceSheets);
+
     // Detect Total column safely
     const dTotalKey = drivers[0] && ("Total" in drivers[0] ? "Total" : ("Points" in drivers[0] ? "Points" : "Total"));
     const cTotalKey = constructors[0] && ("Total" in constructors[0] ? "Total" : ("Points" in constructors[0] ? "Points" : "Total"));
 
-    const driversSorted = sortByTotalDesc(drivers, dTotalKey);
-    const constructorsSorted = sortByTotalDesc(constructors, cTotalKey);
+    const driversWithStats = drivers.map(d => {
+        const name = (d["Driver Name"] || "").trim();
+        const s = driverStats[name] || { wins: 0, podiums: 0 };
+        return {
+            ...d,
+            Wins: s.wins,
+            Podiums: s.podiums
+        };
+    });
+
+    const constructorsWithStats = constructors.map(c => {
+        const team = (c["Team"] || "").trim();
+        const s = constructorStats[team] || { wins: 0, podiums: 0 };
+        return {
+            ...c,
+            Wins: s.wins,
+            Podiums: s.podiums
+        };
+    });
+
+    const driversSorted = sortByTotalDesc(driversWithStats, dTotalKey);
+    const constructorsSorted = sortByTotalDesc(constructorsWithStats, cTotalKey);
 
     const dPos = driversSorted.map((r, i) => ({ ...r, __pos: i + 1 }));
     const cPos = constructorsSorted.map((r, i) => ({ ...r, __pos: i + 1 }));
@@ -408,13 +495,18 @@ async function loadAll() {
         { key: "__pos", label: "Pos" },
         { key: "Driver Name", label: "Driver" },
         { key: "Team (registered)", label: "Team" },
-        { key: dTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
+        { key: dTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
+        { key: "Wins", label: "Wins" },
+        { key: "Podiums", label: "Podiums" }
+        
     ];
 
     const ctorCols = [
         { key: "__pos", label: "Pos" },
         { key: "Team", label: "Constructor" },
-        { key: cTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
+        { key: cTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
+        { key: "Wins", label: "Wins" },
+        { key: "Podiums", label: "Podiums" }
     ];
 
     renderTable($("#driversTable"), driverCols, dPos);
@@ -425,7 +517,6 @@ async function loadAll() {
 
     populateRaceSelect();
 }
-
 
 // ---------- Events ----------
 document.addEventListener("click", (e) => {
