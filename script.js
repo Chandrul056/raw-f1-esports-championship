@@ -436,56 +436,21 @@ async function loadAll() {
     setText("lastUpdated", "Loading…");
     setHref("sheetLink", CONFIG.masterSheetUrl || "#");
 
+    // Load only essential data first
     drivers = await fetchCsvObjects(CONFIG.driversCsv);
     constructors = await fetchCsvObjects(CONFIG.constructorsCsv);
     calendarRows = await fetchCsvObjects(CONFIG.calendarCsv);
 
     renderCalendar(calendarRows);
 
-    // Load all race sheets so we can calculate wins/podiums
-    const raceSheets = [];
-    for (const race of CONFIG.races) {
-        try {
-            const rows = await fetchCsvObjects(race.csv);
-            raceCache.set(race.name, rows);
-            raceSheets.push(rows);
-        } catch (err) {
-            console.error(`Failed to load race sheet: ${race.name}`, err);
-        }
-    }
-
-    const driverStats = buildDriverStats(raceSheets);
-    const constructorStats = buildConstructorStats(raceSheets);
-
-    // Detect Total column safely
     const dTotalKey = drivers[0] && ("Total" in drivers[0] ? "Total" : ("Points" in drivers[0] ? "Points" : "Total"));
     const cTotalKey = constructors[0] && ("Total" in constructors[0] ? "Total" : ("Points" in constructors[0] ? "Points" : "Total"));
 
-    const driversWithStats = drivers.map(d => {
-        const name = (d["Driver Name"] || "").trim();
-        const s = driverStats[name] || { wins: 0, podiums: 0 };
-        return {
-            ...d,
-            Wins: s.wins,
-            Podiums: s.podiums
-        };
-    });
+    const driversSorted = sortByTotalDesc(drivers, dTotalKey);
+    const constructorsSorted = sortByTotalDesc(constructors, cTotalKey);
 
-    const constructorsWithStats = constructors.map(c => {
-        const team = (c["Team"] || "").trim();
-        const s = constructorStats[team] || { wins: 0, podiums: 0 };
-        return {
-            ...c,
-            Wins: s.wins,
-            Podiums: s.podiums
-        };
-    });
-
-    const driversSorted = sortByTotalDesc(driversWithStats, dTotalKey);
-    const constructorsSorted = sortByTotalDesc(constructorsWithStats, cTotalKey);
-
-    const dPos = driversSorted.map((r, i) => ({ ...r, __pos: i + 1 }));
-    const cPos = constructorsSorted.map((r, i) => ({ ...r, __pos: i + 1 }));
+    let dPos = driversSorted.map((r, i) => ({ ...r, __pos: i + 1, Wins: "-", Podiums: "-" }));
+    let cPos = constructorsSorted.map((r, i) => ({ ...r, __pos: i + 1, Wins: "-", Podiums: "-" }));
 
     setText("driverCount", String(dPos.length || "—"));
     setText("constructorCount", String(cPos.length || "—"));
@@ -495,27 +460,61 @@ async function loadAll() {
         { key: "__pos", label: "Pos" },
         { key: "Driver Name", label: "Driver" },
         { key: "Team (registered)", label: "Team" },
-        { key: dTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
-        { key: "Wins", label: "Wins", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
-        { key: "Podiums", label: "Podiums", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
-        
+        { key: "Wins", label: "Wins" },
+        { key: "Podiums", label: "Podiums" },
+        { key: dTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
     ];
 
     const ctorCols = [
         { key: "__pos", label: "Pos" },
         { key: "Team", label: "Constructor" },
-        { key: cTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
-        { key: "Wins", label: "Wins", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` },
-        { key: "Podiums", label: "Podiums", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
+        { key: "Wins", label: "Wins" },
+        { key: "Podiums", label: "Podiums" },
+        { key: cTotalKey, label: "Points", format: (v) => `<span class="badge badge--red">${escapeHtml(String(v || 0))}</span>` }
     ];
 
     renderTable($("#driversTable"), driverCols, dPos);
     renderTable($("#constructorsTable"), ctorCols, cPos);
-
     renderPodium(dPos.slice(0, 3));
     renderConstructorsPodium(cPos.slice(0, 3), cTotalKey);
-
     populateRaceSelect();
+
+    // Load race sheets later in background
+    setTimeout(async () => {
+        try {
+            const raceSheets = [];
+            for (const race of CONFIG.races) {
+                let rows = raceCache.get(race.name);
+                if (!rows) {
+                    rows = await fetchCsvObjects(race.csv);
+                    raceCache.set(race.name, rows);
+                }
+                raceSheets.push(rows);
+            }
+
+            const driverStats = buildDriverStats(raceSheets);
+            const constructorStats = buildConstructorStats(raceSheets);
+
+            dPos = driversSorted.map((r, i) => ({
+                ...r,
+                __pos: i + 1,
+                Wins: driverStats[r["Driver Name"]]?.wins || 0,
+                Podiums: driverStats[r["Driver Name"]]?.podiums || 0
+            }));
+
+            cPos = constructorsSorted.map((r, i) => ({
+                ...r,
+                __pos: i + 1,
+                Wins: constructorStats[r["Team"]]?.wins || 0,
+                Podiums: constructorStats[r["Team"]]?.podiums || 0
+            }));
+
+            renderTable($("#driversTable"), driverCols, dPos);
+            renderTable($("#constructorsTable"), ctorCols, cPos);
+        } catch (err) {
+            console.error("Background stats load failed:", err);
+        }
+    }, 0);
 }
 
 // ---------- Events ----------
