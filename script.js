@@ -35,6 +35,7 @@ const CONFIG = {
         { name: "R6 - Belgium", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=1590722308&single=true&output=csv" },
         { name: "R7 - Netherlands", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=2138646510&single=true&output=csv" },
         { name: "R8 - Brazil", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=6299775&single=true&output=csv" },
+        { name: "R9 - Las Vegas", csv: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSDjTgVEjSqmQ2kpcAggNlOfCf_ECrq8yO3DzIcyyQjXs0fj1L9mFaM1Td1AwNJIKiaI6FVW7E-oIh0/pub?gid=815539015&single=true&output=csv" },
     ],
 
     // Home page "Next Race" card
